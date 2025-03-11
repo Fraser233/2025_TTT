@@ -44,16 +44,11 @@ Some keywords for the project ideas should include:
 ## 📂 Repository Structure
 ```
 2025_TTT/
-├── LiDAR_API_Docs/
-│   ├── Indigo API/
-│   │   ├── BCT API.postman_collection.json
-│   │   ├── IndiGOiQ_API_V3.pdf
-│   └── Realtime API/
+├── LiDAR_API_Docs/           # API docs
 ├── src/                      # Source code
 ├── test/                     # Test scripts
-│   └── test_call_IndiGO_APIs.py
-├── venv/                     # Virtual environment
-├── .env                      # Environment variables
-├── .gitignore                # Git ignore file
-└── access_token.txt          # Token file (Do not commit this)
+├── venv/                     # Virtual environment (Create by yourself)
+├── .env                      # Environment variables (Store credentials, create by yourself)
+├── .gitignore                # Git ignore file (Ignore venv and .env, create by yourself)
+└── access_token.txt          # Token file (Do not edit this manually)
 ```
