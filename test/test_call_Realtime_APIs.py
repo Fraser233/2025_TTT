@@ -18,21 +18,8 @@ UDID = "your_sensor_udid_here"
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 
-# -------------------- Create Stream --------------------
-stream = BCTWSConnection(
-    UDID,
-    username=USERNAME,
-    password=PASSWORD,
-    singleton=False,
-    subscriptions=[
-        BCTWSConnection.subscriptionOption.FRAME,
-        BCTWSConnection.subscriptionOption.PHASE_CHANGE,
-        BCTWSConnection.subscriptionOption.LOOP_CHANGE
-    ]
-)
-
 # -------------------- Handlers for Multithreaded Events --------------------
-def get_frame():
+def get_frame(stream):
     while True:
         try:
             data = stream.get_frame()
@@ -41,7 +28,7 @@ def get_frame():
         except Exception as e:
             print("Error in frame stream:", e)
 
-def get_occupancy():
+def get_occupancy(stream):
     while True:
         try:
             data = stream.get_occupancy()
@@ -50,7 +37,7 @@ def get_occupancy():
         except Exception as e:
             print("Error in occupancy stream:", e)
 
-def get_phase():
+def get_phase(stream):
     while True:
         try:
             data = stream.get_phase()
@@ -59,15 +46,31 @@ def get_phase():
         except Exception as e:
             print("Error in phase stream:", e)
 
-# -------------------- Start Threads --------------------
-frame_thread = threading.Thread(target=get_frame)
-occupancy_thread = threading.Thread(target=get_occupancy)
-phase_thread = threading.Thread(target=get_phase)
 
-frame_thread.start()
-occupancy_thread.start()
-phase_thread.start()
+def main():
+    # -------------------- Create Stream --------------------
+    stream = BCTWSConnection(
+        UDID,
+        username=USERNAME,
+        password=PASSWORD,
+        singleton=False,
+        subscriptions=[BCTWSConnection.subscriptionOption.FRAME,
+                       BCTWSConnection.subscriptionOption.PHASE_CHANGE,
+                       BCTWSConnection.subscriptionOption.LOOP_CHANGE])
 
-frame_thread.join()
-occupancy_thread.join()
-phase_thread.join()
+    # -------------------- Start Threads --------------------
+    frame_thread = threading.Thread(target=get_frame, args=(stream,))
+    occupancy_thread = threading.Thread(target=get_occupancy, args=(stream,))
+    phase_thread = threading.Thread(target=get_phase, args=(stream,))
+
+    frame_thread.start()
+    occupancy_thread.start()  
+    phase_thread.start()
+
+    frame_thread.join()
+    occupancy_thread.join()
+    phase_thread.join()
+
+
+if __name__ == '__main__':
+    main()
