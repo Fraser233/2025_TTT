@@ -41,6 +41,12 @@ Some keywords for the project ideas should include:
 
 ---
 
+## 🐍 Python version
+
+Ensure you are using version < 3.12.
+
+---
+
 ## 📂 Repository Structure
 ```
 2025_TTT/
