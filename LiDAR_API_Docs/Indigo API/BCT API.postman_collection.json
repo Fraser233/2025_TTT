@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "f6b9d571-d0c8-4813-b6ae-7ba3e669dd60",
+		"name": "BCT API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4790376"
+	},
+	"item": [
+		{
+			"name": "Aggregated Data",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "<Token>",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://core.api.bluecity.ai/s/ad?UDID=<UDID>&fdate=2022-08-22T10:00:00&tdate=2022-08-22T11:00:00&f=ne,nw&a=1&simplified=1",
+					"protocol": "https",
+					"host": [
+						"core",
+						"api",
+						"bluecity",
+						"ai"
+					],
+					"path": [
+						"s",
+						"ad"
+					],
+					"query": [
+						{
+							"key": "UDID",
+							"value": "<UDID>"
+						},
+						{
+							"key": "fdate",
+							"value": "2022-08-22T10:00:00"
+						},
+						{
+							"key": "tdate",
+							"value": "2022-08-22T11:00:00"
+						},
+						{
+							"key": "f",
+							"value": "ne,nw"
+						},
+						{
+							"key": "a",
+							"value": "1"
+						},
+						{
+							"key": "simplified",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
