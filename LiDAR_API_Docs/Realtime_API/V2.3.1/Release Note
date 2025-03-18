@@ -1,4 +1,0 @@
-V2.3.1 
-
-Minor bugs fixed. 
-Singelton false splits the data regardless of the number of objects in the frame now.
