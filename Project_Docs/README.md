@@ -9,6 +9,8 @@ The proposed **SHIELD-RSU** (**Smart Hybrid Intersection Edge-based LLM Deployme
 
 ## Method Overview
 
+![SHIELD-RSU Flowchart](./flowchart.png)
+
 ### System Workflow
 
 - **Input**: 
@@ -62,7 +64,7 @@ A good SHIELD-RSU alert message must be:
   "timestamp": 1732083745000000,
   "ego_vehicle": {
     "id": "EV123",
-    "location": {"x": 12.5, "y": 38.2},
+    "location": {"x": 12.5, "y": 38.2, "z": 0.2},
     "speed_mps": 11.4,
     "heading_deg": 82.3
   },
@@ -70,7 +72,7 @@ A good SHIELD-RSU alert message must be:
     {
       "id": "OBJ456",
       "type": "VRU - Pedestrian",
-      "position": {"x": 13.1, "y": 38.5},
+      "position": {"x": 13.1, "y": 38.5, "z": 0.3},
       "speed_mps": 1.2,
       "heading_deg": 270,
       "TTC_sec": 1.3,
@@ -79,7 +81,7 @@ A good SHIELD-RSU alert message must be:
     {
       "id": "OBJ789",
       "type": "Vehicle",
-      "position": {"x": 11.8, "y": 37.9},
+      "position": {"x": 11.8, "y": 37.9, "z": 0.3},
       "speed_mps": 9.0,
       "heading_deg": 85,
       "TTC_sec": 2.7,
