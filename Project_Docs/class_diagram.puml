@@ -1,0 +1,42 @@
+' Author: Fengze Yang, Email: fred.yang@utah.edu
+' Date: 2025-03-21
+
+@startuml
+skinparam classAttributeIconSize 0
+
+class SHIELDRSUSystem {
+  - dataIngestion: DataIngestion
+  - llmInference: LLMInference
+  - communication: Communication
+  + run_cycle()
+  + main_loop()
+  + __init__()
+}
+
+class DataIngestion {
+  + get_ego_data() : Dict
+  + get_lidar_data() : List
+}
+
+class LLMInference {
+  + end_to_end_analysis(ego_data, lidar_objects) : Dict
+  - _format_prompt(ego_data, lidar_objects) : str
+  - _call_llm(prompt) : str
+  - _parse_llm_output(llm_raw_output) : Dict
+  - _post_process(ego_data, lidar_objects, llm_parsed) : Dict
+  + __init__()
+}
+
+class Communication {
+  + format_broadcast_message(ranked_objects) : Dict
+  + format_personalized_message(ego_data, ranked_objects) : Dict
+  + send_broadcast_message(msg) : None
+  + send_personalized_message(ego_data, msg) : None
+  - _get_microseconds() : int
+  + __init__()
+}
+
+SHIELDRSUSystem --> DataIngestion
+SHIELDRSUSystem --> LLMInference
+SHIELDRSUSystem --> Communication
+@enduml
