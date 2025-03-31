@@ -14,6 +14,12 @@ The tournament is jointly hosted by:
 
 ---
 
+## Team Name
+
+VRU-SHIELD
+
+---
+
 ## 👥 Meet Our Team
 - **Mentor:** Mark Taylor   
 - **Team Leader:** Fengze Yang  

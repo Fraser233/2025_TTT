@@ -21,7 +21,8 @@ The proposed **SHIELD-RSU** (**Smart Hybrid Intersection Edge-based LLM Deployme
   - RSU leverages real-time LiDAR-based perception data (objects already detected and classified).
 
 - **LLM-based Prediction**:
-  - RSU's lightweight edge-based LLM predicts trajectories and collision risks for nearby vehicles and vulnerable road users (VRUs).
+  - Start working once detect VRUs.
+  - RSU's lightweight edge-based LLM predicts VRU trajectories and collision risks for conflict vehicles.
   - Risk severity is quantified and ranked based on:
     - Time-to-collision (TTC)
     - Relative speed/distance
@@ -29,8 +30,10 @@ The proposed **SHIELD-RSU** (**Smart Hybrid Intersection Edge-based LLM Deployme
     - VRU vulnerability index
 
 - **Output**:
+  - True positive or false positive, reason.
+  - Alert zone: vehicle at which zone should recieve this alert.
   - RSU generates personalized predictive Basic Safety Messages (BSMs), sending these back to the ego vehicle.
-  - If a severe risk is detected, the RSU proactively initiates a traffic signal change (e.g., green to yellow/red) to mitigate the collision risk.
+  - Broadcast the VRU movements to conflict vehicles.
 
 ## Comparison: Aggregation Alert vs. SHIELD-RSU
 

@@ -24,10 +24,10 @@ class LLMInference:
 
     def __init__(self):
         """
-        Load the Qwen Qwen2.5-14B-Instruct model from Hugging Face 
+        Load the Qwen Qwen2.5-7B-Instruct model from Hugging Face 
         and read the chain-of-thought prompt from property/prompt.txt.
         """
-        self.model_name = "Qwen/Qwen2.5-14B-Instruct"
+        self.model_name = "Qwen/Qwen2.5-7B-Instruct"
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
         self.model.eval()
@@ -50,6 +50,7 @@ class LLMInference:
         llm_raw_output = self._call_llm(prompt)
         llm_parsed_output = self._parse_llm_output(llm_raw_output)
         result = self._post_process(ego_data, lidar_objects, llm_parsed_output)
+
         return result
 
 
@@ -76,6 +77,7 @@ class LLMInference:
         """
         # Encode input
         input_ids = self.tokenizer.encode(prompt, return_tensors='pt')
+        
         with torch.no_grad():
             output_ids = self.model.generate(
                 input_ids,
@@ -83,6 +85,7 @@ class LLMInference:
                 do_sample=False,  # or True if you want sampling
             )
         output_text = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+
         return output_text
     
 
