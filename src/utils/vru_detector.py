@@ -71,7 +71,7 @@ class VruDetector:
             if self.vru_started:
                 # Still need to add data even if no VRU is found to maintain continuity
                 new_path = self.lidar_buffer.add_data(data, self.current_video_path)
-                
+
                 if new_path and new_path != self.current_video_path:
                     print(f"Recording path updated from {self.current_video_path} to {new_path}")
                     self.current_video_path = new_path

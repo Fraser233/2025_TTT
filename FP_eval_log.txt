@@ -1,0 +1,5 @@
+11:12am-12:11pm, Tue, Apr 1st, 2025
+-------------------------------------------
+Total events: 268
+FP events: 253
+FP event rate: 94.4%

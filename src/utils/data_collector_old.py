@@ -6,7 +6,7 @@ import json
 import socket
 import ssl
 import os
-from typing import Any, Dict
+from typing import Any
 from lidar_buffer import LidarBuffer
 from vru_detector import VruDetector
 
@@ -80,52 +80,19 @@ def read_frames(socket_client: ssl.SSLSocket, callback_function: Any) -> None:
             break
 
 
-def print_session_statistics(session_counters):
-    """
-    Print statistics about the data collection sessions.
-    
-    Args:
-        session_counters: Dictionary with session counting stats.
-    """
-    total_sessions = session_counters['total_sessions']
-    valid_sessions = session_counters['valid_sessions']
-    
-    if total_sessions > 0:
-        valid_percentage = (valid_sessions / total_sessions) * 100
-        invalid_sessions = total_sessions - valid_sessions
-        
-        print(f"\nSession Statistics:")
-        print(f"  Total Sessions: {total_sessions}")
-        print(f"  Valid Sessions: {valid_sessions} ({valid_percentage:.1f}%)")
-        print(f"  Invalid Sessions: {invalid_sessions} ({100-valid_percentage:.1f}%)")
-    else:
-        print("No sessions were recorded.")
-
-
 def main():
     # Create SSL context for secure connection.
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     ssl_context.verify_mode = ssl.CERT_NONE
-
-    # Initialize session counters
-    session_counters = {
-        'total_sessions': 0,
-        'valid_sessions': 0,
-        'current_session_valid': False
-    }
 
     # Connect to the TCP stream.
     with ssl_context.wrap_socket(socket.create_connection(ADDRESS)) as socket_client:
         print(f"Connected to {ADDRESS}. Listening for LiDAR data...")
 
         while True:
-            # Create a new LidarBuffer for this session, passing in the session counters
-            lidar_buffer = LidarBuffer(
-                max_frames=MAX_BUFFER_SIZE,
-                min_video_duration=MIN_VIDEO_DURATION,
-                capture_area=CAPTURE_AREA,
-                session_counters=session_counters
-            )
+            # Create a new LidarBuffer for this session.
+            lidar_buffer = LidarBuffer(MAX_BUFFER_SIZE,
+                                       CAPTURE_AREA)
             
             # Create a new VruDetector using the LidarBuffer and NO_VRU_THRESHOLD.
             vru_detector = VruDetector(lidar_buffer, NO_VRU_THRESHOLD)
@@ -133,18 +100,6 @@ def main():
             # Read frames until the detector signals the current session is complete.
             # This call blocks until vru_detector.handle_frame() returns True.
             read_frames(socket_client, vru_detector.handle_frame)
-            
-            # Increment session counters after a session completes
-            session_counters['total_sessions'] += 1
-            
-            # Update valid sessions counter if the session was valid
-            if session_counters['current_session_valid']:
-                session_counters['valid_sessions'] += 1
-            
-            # Print current statistics after each session
-            print_session_statistics(session_counters)
-
 
 if __name__ == "__main__":
     main()
-    

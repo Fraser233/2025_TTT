@@ -4,4 +4,6 @@ VPN_Credential.txt
 data/object_lists
 data/frames
 data/videos
+data/invalid_videos
+data/invalid_objects
 TTT-env

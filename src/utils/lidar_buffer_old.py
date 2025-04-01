@@ -15,46 +15,24 @@ from typing import Any, Dict, Tuple
 class LidarBuffer:
 
     def __init__(self,
-                 max_frames: int,
-                 min_video_duration: int,
-                 capture_area: Tuple[int, int, int, int] = (1920, 1080, 0, 0),
-                 session_counters: Dict[str, int] = None):
+                 max_frames,
+                 capture_area: Tuple[int, int, int, int] = (1920, 1080, 0, 0)):
         """
         Initialize LidarBuffer with an optional capture area and max frames setting.
         
         Args:
-            max_frames: Maximum number of frames to accumulate before saving a batch.
-            min_video_duration: Minimum required video duration in seconds.
             capture_area: A tuple (width, height, offset_x, offset_y) defining
               the region of the screen to record. Defaults to 1920x1080 starting
               at (0, 0).
-            session_counters: Dictionary with session counting stats, should have
-              'total_sessions', 'valid_sessions', and 'current_session_valid' keys.
+            max_frames: Maximum number of frames to accumulate before saving a batch.
+              Defaults to 70.
         """
         self.capture_area = capture_area  # (width, height, offset_x, offset_y)
         self.raw_data = []  # List to accumulate raw frames from incoming JSON data
         self.recording_active = False
         self.recording_process = None
         self.max_frames = max_frames  # Maximum number of frames before saving batch
-        self.min_video_duration = min_video_duration  # Minimum video duration in seconds
-        
-        # Session tracking - using externally provided counters if available
-        self.session_counters = session_counters or {
-            'total_sessions': 0,
-            'valid_sessions': 0,
-            'current_session_valid': False
-        }
-        
-        # Create necessary directories
-        self._create_directories()
-        
-    def _create_directories(self):
-        """Create all necessary directories for data storage."""
-        os.makedirs(os.path.join("data", "videos"), exist_ok=True)
-        os.makedirs(os.path.join("data", "invalid_videos"), exist_ok=True)
-        os.makedirs(os.path.join("data", "object_lists"), exist_ok=True)
-        os.makedirs(os.path.join("data", "invalid_objects"), exist_ok=True)
-        
+
 
     def _generate_temp_video_path(self):
         """
@@ -103,9 +81,6 @@ class LidarBuffer:
                 )
                 self.recording_active = True
                 print("Screen recording started.")
-                
-                # Reset session validity for the new recording
-                self.session_counters['current_session_valid'] = False
                 
                 return temp_video_path
             except Exception as e:
@@ -189,12 +164,13 @@ class LidarBuffer:
         return video_path
 
 
-    def _validate_video_duration(self, video_path):
+    def _validate_video_duration(self, video_path, min_duration_seconds=6):
         """
         Validates if the recorded video meets the minimum duration requirement.
         
         Args:
             video_path: Path to the video file to validate
+            min_duration_seconds: Minimum required video duration in seconds.
         
         Return:
             True if video is valid, False otherwise.
@@ -216,8 +192,10 @@ class LidarBuffer:
             duration_str = result.stdout.strip()
             duration = float(duration_str)
 
-            if duration < self.min_video_duration:
-                print(f"Video length ({duration:.2f} seconds) is less than {self.min_video_duration} seconds. Moving to invalid videos directory.")
+            if duration < min_duration_seconds:
+                print(f"Video length ({duration:.2f} seconds) is less than {min_duration_seconds} seconds. Not saving batch.")
+                os.remove(video_path)
+                
                 return False
             return True
         except Exception as e:
@@ -225,21 +203,15 @@ class LidarBuffer:
             return False
 
 
-    def _save_json_data(self, identifier: str, data_to_save, is_valid=True):
+    def _save_json_data(self, identifier: str, data_to_save):
         """
         Saves each raw JSON frame as a separate file in a folder named with the identifier.
         
         Args:
             identifier: Folder name to use (first frame's frame_count).
             data_to_save: List of raw frames (dictionaries) to save.
-            is_valid: Whether to save to the valid or invalid directory.
         """
-        if is_valid:
-            base_dir = os.path.join("data", "object_lists")
-        else:
-            base_dir = os.path.join("data", "invalid_objects")
-            
-        json_folder = os.path.join(base_dir, identifier)
+        json_folder = os.path.join("data", "object_lists", identifier)
         os.makedirs(json_folder, exist_ok=True)
 
         for frame in data_to_save:
@@ -257,30 +229,24 @@ class LidarBuffer:
             print(f"Saved JSON for frame {key} to {json_path}")
 
 
-    def _save_video_file(self, identifier: str, video_path: str, is_valid=True):
+    def _save_video_file(self, identifier: str, video_path: str):
         """
-        Moves the temporary video file to its final location with the identifier as filename.
+        Moves the temporary video file to its final location with the
+          identifier as filename.
         
         Args:
-            identifier: Filename to use for the saved video (first frame's frame_count).
+            identifier: Filename to use for the saved video
+              (first frame's frame_count).
             video_path: Path to the temporary video file to move
-            is_valid: Whether to save to the valid or invalid directory.
         """
         if not video_path:
             print("No video path provided for saving.")
             return
-        
-        if is_valid:
-            target_dir = os.path.join("data", "videos")
-        else:
-            target_dir = os.path.join("data", "invalid_videos")
             
-        final_video_path = os.path.join(target_dir, f"{identifier}.mp4")
-        
+        final_video_path = os.path.join("data", "videos", f"{identifier}.mp4")
         try:
             os.rename(video_path, final_video_path)
-            status = "valid" if is_valid else "invalid"
-            print(f"Screen recording saved to {final_video_path} (as {status})")
+            print(f"Screen recording saved to {final_video_path}")
         except Exception as e:
             print(f"Error saving screen recording: {e}")
 
@@ -292,8 +258,6 @@ class LidarBuffer:
         Checks the video duration; if valid, saves JSON files under data/object_lists
         (in a folder named with the identifier) and moves the temporary video file
         into data/videos using the identifier.
-        
-        If invalid, saves to data/invalid_videos and data/invalid_objects instead.
         
         Args:
             data_to_save: List of raw frames to save
@@ -311,17 +275,13 @@ class LidarBuffer:
             return
 
         # Validate video duration.
-        is_valid = self._validate_video_duration(video_path)
-        
-        # Mark session as having a valid batch if at least one batch is valid
-        if is_valid:
-            self.session_counters['current_session_valid'] = True
+        if not self._validate_video_duration(video_path):
+            return
 
-        # Save JSON data
-        self._save_json_data(first_key, data_to_save, is_valid)
-        
-        # Save video file
-        self._save_video_file(first_key, video_path, is_valid)
+        # Save JSON data.
+        self._save_json_data(first_key, data_to_save)
+        # Save video file.
+        self._save_video_file(first_key, video_path)
 
 
     def stop_recording(self, video_path=None):
@@ -332,28 +292,18 @@ class LidarBuffer:
         Args:
             video_path: Path to the current video file (if not provided, nothing
               will be saved)
-            
-        Returns:
-            True if the session had at least one valid batch, False otherwise
         """
         self.stop_screen_recording()
-        
+
         if self.raw_data:
             print("Final save of remaining frames...")
             
-            # Save remaining frames directly (not in background) for this final save
+            # Save remaining frames in the background.
             data_to_save = copy.deepcopy(self.raw_data)
             self.raw_data.clear()
-            self._save_batch(data_to_save, video_path)
-        
-        # Return the current session validity 
-        session_valid = self.session_counters['current_session_valid']
-        print(f"Session completed with {'valid' if session_valid else 'no valid'} data.")
-        
-        # Reset for next session
-        self.session_counters['current_session_valid'] = False
+
+            threading.Thread(target=self._save_batch, 
+                             args=(data_to_save, video_path), 
+                             daemon=True).start()
 
         print("Recording stopped. Internal buffers cleared.")
-        
-        return session_valid
-    
