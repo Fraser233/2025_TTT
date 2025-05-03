@@ -80,29 +80,57 @@ def read_frames(socket_client: ssl.SSLSocket, callback_function: Any) -> None:
             break
 
 
-def print_session_statistics(session_counters):
+def print_video_statistics():
     """
-    Print statistics about the data collection sessions.
-    
-    Args:
-        session_counters: Dictionary with session counting stats.
+    Print statistics about the collected video files.
     """
-    total_sessions = session_counters['total_sessions']
-    valid_sessions = session_counters['valid_sessions']
+    stats = get_video_statistics()
     
-    if total_sessions > 0:
-        valid_percentage = (valid_sessions / total_sessions) * 100
-        invalid_sessions = total_sessions - valid_sessions
-        
-        print(f"\nSession Statistics:")
-        print(f"  Total Sessions: {total_sessions}")
-        print(f"  Valid Sessions: {valid_sessions} ({valid_percentage:.1f}%)")
-        print(f"  Invalid Sessions: {invalid_sessions} ({100-valid_percentage:.1f}%)")
+    print("\nVideo File Statistics:")
+    print(f"  Total Events: {stats['total_events']}")
+    print(f"  FP Events: {stats['fp_events']}")
+    print(f"  FP Event Rate: {stats['fp_rate']:.1f}%")
+
+
+def get_video_statistics():
+    """
+    Count videos in data folders and calculate event statistics.
+    
+    Returns:
+        dict: Statistics containing total_events, fp_events, and fp_rate
+    """
+    valid_dir = "data/videos"
+    invalid_dir = "data/invalid_videos"
+    
+    # Count valid videos
+    if not os.path.exists(valid_dir):
+        print(f"Warning: {valid_dir} directory does not exist")
+        valid_count = 0
     else:
-        print("No sessions were recorded.")
+        valid_count = len([f for f in os.listdir(valid_dir) 
+                          if os.path.isfile(os.path.join(valid_dir, f))])
+    
+    # Count invalid videos
+    if not os.path.exists(invalid_dir):
+        print(f"Warning: {invalid_dir} directory does not exist")
+        invalid_count = 0
+    else:
+        invalid_count = len([f for f in os.listdir(invalid_dir) 
+                            if os.path.isfile(os.path.join(invalid_dir, f))])
+    
+    # Calculate statistics
+    total_events = valid_count + invalid_count
+    fp_rate = (invalid_count / total_events * 100) if total_events > 0 else 0
+    
+    return {
+        "total_events": total_events,
+        "fp_events": invalid_count,
+        "fp_rate": fp_rate
+    }
 
 
 def main():
+    print_video_statistics()
     # Create SSL context for secure connection.
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     ssl_context.verify_mode = ssl.CERT_NONE
@@ -142,7 +170,7 @@ def main():
                 session_counters['valid_sessions'] += 1
             
             # Print current statistics after each session
-            print_session_statistics(session_counters)
+            print_video_statistics()
 
 
 if __name__ == "__main__":

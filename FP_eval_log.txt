@@ -1,5 +1,11 @@
-11:12am-12:11pm, Tue, Apr 1st, 2025
+11:12-12:11, Tue, Apr 1st, 2025
 -------------------------------------------
 Total events: 268
 FP events: 253
 FP event rate: 94.4%
+
+16:50-19:10, Fri, May 2nd, 2025
+-------------------------------------------
+Total Events: 757
+FP Events: 360
+FP Event Rate: 47.6%
