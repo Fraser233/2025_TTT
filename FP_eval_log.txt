@@ -9,3 +9,25 @@ FP event rate: 94.4%
 Total Events: 757
 FP Events: 360
 FP Event Rate: 47.6%
+
+23:50-9:50, Sat-Sun, May 3rd-4th, 2025
+-------------------------------------------
+Total Events: 697
+FP Events: 357
+FP Event Rate: 51.2%
+
+8:10-10:10, Mon, May 5th, 2025
+-------------------------------------------
+Total Events: 909
+FP Events: 177
+FP Event Rate: 19.5%
+
+13:32-14:35, Tue, May 6th, 2025
+-------------------------------------------
+Total Events: 440
+FP Events: 212
+FP Event Rate: 48.2%
+
+17:08-, Tue, May 6th, 2025
+-------------------------------------------
+

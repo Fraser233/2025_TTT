@@ -7,3 +7,4 @@ data/videos*
 data/invalid_videos*
 data/invalid_objects*
 TTT-env
+*.code-workspace
